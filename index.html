@@ -2,167 +2,329 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GRIFFIN | SYSTEM ONLINE</title>
+<title>GRIFFIN | ARCHIVAL INTERIORS SYSTEM</title>
 
 <style>
 body {
     margin: 0;
-    background: #050505;
-    color: #ffffff;
+    background: #000;
+    color: #eaeaea;
     font-family: Arial, sans-serif;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
-/* PIPE NETWORK BACKGROUND */
-.pipe {
-    position: absolute;
-    width: 2px;
+/* =========================
+   WORLD
+========================= */
+.world {
+    position: fixed;
+    width: 100%;
     height: 100%;
-    background: #1a1a1a;
 }
 
-.pipe:nth-child(1) { left: 10%; }
-.pipe:nth-child(2) { left: 30%; }
-.pipe:nth-child(3) { left: 60%; }
-.pipe:nth-child(4) { left: 85%; }
-
-/* TOP BAR */
-.topbar {
-    padding: 20px 40px;
-    border-bottom: 1px solid #222;
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-    z-index: 2;
-    letter-spacing: 2px;
+/* =========================
+   LOBBY
+========================= */
+.lobby {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 100px;
+    transition: opacity 0.5s ease;
 }
 
-/* MAIN */
-.container {
-    padding: 80px 40px;
-    position: relative;
-    z-index: 2;
-}
-
-h1 {
-    font-size: 72px;
-    margin: 0;
-    letter-spacing: 6px;
+.title {
+    font-size: 80px;
+    letter-spacing: 14px;
 }
 
 .subtitle {
     color: #888;
-    margin-top: 10px;
-}
-
-/* UNDER CONSTRUCTION BOX */
-.status {
-    margin-top: 40px;
-    border: 1px solid #333;
-    padding: 20px;
-    display: inline-block;
+    max-width: 650px;
     letter-spacing: 3px;
-    color: #ffcc00;
 }
 
-/* GRID */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+/* NODE GRID */
+.nodes {
     margin-top: 80px;
+    display: grid;
+    grid-template-columns: repeat(2, 240px);
+    gap: 20px;
 }
 
-.card {
+.node {
     border: 1px solid #222;
-    padding: 20px;
-    height: 140px;
+    padding: 18px;
+    height: 120px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.02);
     transition: 0.3s;
-    position: relative;
+}
+
+.node:hover {
+    transform: scale(1.06);
+    border-color: #fff;
+}
+
+/* =========================
+   ROOM SYSTEM
+========================= */
+.room {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    animation: roomIn 0.6s ease;
+}
+
+@keyframes roomIn {
+    from { opacity: 0; transform: scale(1.03); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* FLOOR */
+.floor {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 45%;
+    background: radial-gradient(#111, #000);
+}
+
+/* CENTER TABLE (ARCHITECTURAL CORE) */
+.table {
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    width: 280px;
+    height: 140px;
+    transform: translate(-50%, -50%);
+    background: #151515;
+    border: 1px solid #333;
+    box-shadow: 0 0 50px rgba(255,255,255,0.04);
+}
+
+/* ROOM TITLE */
+.roomTitle {
+    position: absolute;
+    top: 60px;
+    left: 80px;
+    font-size: 38px;
+    letter-spacing: 10px;
+}
+
+/* ARCHIVE LABEL */
+.label {
+    position: absolute;
+    top: 120px;
+    left: 80px;
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 4px;
+}
+
+/* PDF PANELS (WALL OBJECTS) */
+.panel {
+    position: absolute;
+    width: 180px;
+    height: 240px;
+    border: 1px solid #333;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: 0.3s;
     overflow: hidden;
 }
 
-/* PIPE EFFECT ON CARDS */
-.card::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background: #222;
-    top: 20px;
-    left: 0;
-}
-
-.card:hover {
+.panel:hover {
+    transform: scale(1.05);
     border-color: #fff;
-    transform: scale(1.03);
 }
 
-/* SMALL TECH TEXT */
-.tag {
-    font-size: 12px;
-    color: #666;
-    margin-top: 10px;
+/* WALL POSITIONS */
+.p1 { left: 10%; top: 25%; }
+.p2 { left: 75%; top: 25%; }
+.p3 { left: 10%; top: 65%; }
+.p4 { left: 75%; top: 65%; }
+
+/* EXIT */
+.exit {
+    position: absolute;
+    bottom: 60px;
+    right: 70px;
+    padding: 12px 18px;
+    border: 1px solid #222;
+    letter-spacing: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.exit:hover {
+    border-color: #fff;
+    transform: translateX(6px);
+}
+
+/* FADE */
+.fade {
+    opacity: 0;
+    pointer-events: none;
 }
 </style>
-
 </head>
 
 <body>
 
-<!-- PIPE STRUCTURE -->
-<div class="pipe"></div>
-<div class="pipe"></div>
-<div class="pipe"></div>
-<div class="pipe"></div>
+<div class="world">
 
-<div class="topbar">
-    <div>GRIFFIN // SYSTEM CORE</div>
-    <div>SELF-ENGINEERED VISIONARY</div>
-</div>
+    <!-- =========================
+         LOBBY
+    ========================== -->
+    <div class="lobby" id="lobby">
 
-<div class="container">
+        <div class="title">GRIFFIN</div>
 
-    <h1>UNDER CONSTRUCTION</h1>
-    <div class="subtitle">ARCHITECTURAL SYSTEM INTERFACE v0.1</div>
-
-    <div class="status">
-        STATUS: BUILDING IDENTITY SYSTEM / LOADING DESIGN NETWORK
-    </div>
-
-    <div class="grid">
-        <div class="card">
-            PROJECT 01
-            <div class="tag">ARCHITECTURAL STUDY</div>
+        <div class="subtitle">
+            URBAN BUILDER / ARCHIVAL INTERIOR SYSTEM<br>
+            ENTER STRUCTURES. EACH PROJECT IS A PHYSICAL ROOM.
         </div>
 
-        <div class="card">
-            PROJECT 02
-            <div class="tag">SYSTEM DESIGN</div>
-        </div>
+        <div class="nodes">
 
-        <div class="card">
-            ESPÉCIMEN
-            <div class="tag">EXPERIMENTAL BRAND</div>
-        </div>
+            <div class="node" onclick="enterRoom('101')">
+                101<br>FOUNDATION CHAMBER
+            </div>
 
-        <div class="card">
-            OMM SERIES
-            <div class="tag">CONCEPTUAL WORK</div>
-        </div>
+            <div class="node" onclick="enterRoom('102')">
+                102<br>STRUCTURAL LAB
+            </div>
 
-        <div class="card">
-            SKETCHES
-            <div class="tag">RAW IDEATION</div>
-        </div>
+            <div class="node" onclick="enterRoom('201')">
+                201<br>FORM WORKSHOP
+            </div>
 
-        <div class="card">
-            ABOUT
-            <div class="tag">IDENTITY NODE</div>
+            <div class="node" onclick="enterRoom('202')">
+                202<br>VOID ROOM
+            </div>
+
         </div>
     </div>
 
+    <!-- =========================
+         ROOM 101
+    ========================== -->
+    <div class="room" id="room101">
+
+        <div class="roomTitle">101 / FOUNDATION CHAMBER</div>
+        <div class="label">ARCHIVAL UNIT / GROUND SYSTEM</div>
+
+        <div class="floor"></div>
+        <div class="table"></div>
+
+        <div class="panel p1" onclick="openArtifact('101_1.pdf')"></div>
+        <div class="panel p2" onclick="openArtifact('101_2.pdf')"></div>
+        <div class="panel p3" onclick="openArtifact('101_notes.pdf')"></div>
+        <div class="panel p4" onclick="openArtifact('101_section.pdf')"></div>
+
+        <div class="exit" onclick="exitRoom()">EXIT</div>
+    </div>
+
+    <!-- =========================
+         ROOM 102
+    ========================== -->
+    <div class="room" id="room102">
+
+        <div class="roomTitle">102 / STRUCTURAL LAB</div>
+        <div class="label">ARCHIVAL UNIT / LOAD SYSTEM</div>
+
+        <div class="floor"></div>
+        <div class="table"></div>
+
+        <div class="panel p1" onclick="openArtifact('102_grid.pdf')"></div>
+        <div class="panel p2" onclick="openArtifact('102_load.pdf')"></div>
+        <div class="panel p3" onclick="openArtifact('102_beam.pdf')"></div>
+        <div class="panel p4" onclick="openArtifact('102_joints.pdf')"></div>
+
+        <div class="exit" onclick="exitRoom()">EXIT</div>
+    </div>
+
+    <!-- =========================
+         ROOM 201
+    ========================== -->
+    <div class="room" id="room201">
+
+        <div class="roomTitle">201 / FORM WORKSHOP</div>
+        <div class="label">ARCHIVAL UNIT / MORPHOLOGY FIELD</div>
+
+        <div class="floor"></div>
+        <div class="table"></div>
+
+        <div class="panel p1" onclick="openArtifact('201_form_1.pdf')"></div>
+        <div class="panel p2" onclick="openArtifact('201_form_2.pdf')"></div>
+        <div class="panel p3" onclick="openArtifact('201_process.pdf')"></div>
+        <div class="panel p4" onclick="openArtifact('201_studies.pdf')"></div>
+
+        <div class="exit" onclick="exitRoom()">EXIT</div>
+    </div>
+
+    <!-- =========================
+         ROOM 202
+    ========================== -->
+    <div class="room" id="room202">
+
+        <div class="roomTitle">202 / VOID ROOM</div>
+        <div class="label">ARCHIVAL UNIT / NEGATIVE SPACE</div>
+
+        <div class="floor"></div>
+        <div class="table"></div>
+
+        <div class="panel p1" onclick="openArtifact('202_void_1.pdf')"></div>
+        <div class="panel p2" onclick="openArtifact('202_void_2.pdf')"></div>
+        <div class="panel p3" onclick="openArtifact('202_experiments.pdf')"></div>
+        <div class="panel p4" onclick="openArtifact('202_concepts.pdf')"></div>
+
+        <div class="exit" onclick="exitRoom()">EXIT</div>
+    </div>
+
 </div>
+
+<script>
+
+let currentRoom = null;
+
+/* ENTER ROOM */
+function enterRoom(id){
+
+    document.getElementById("lobby").classList.add("fade");
+
+    setTimeout(() => {
+        document.getElementById("lobby").style.display = "none";
+        document.getElementById("room"+id).style.display = "block";
+        currentRoom = id;
+    }, 500);
+}
+
+/* EXIT ROOM */
+function exitRoom(){
+
+    if(!currentRoom) return;
+
+    document.getElementById("room"+currentRoom).style.display = "none";
+
+    let lobby = document.getElementById("lobby");
+    lobby.style.display = "block";
+
+    setTimeout(() => {
+        lobby.classList.remove("fade");
+    }, 50);
+
+    currentRoom = null;
+}
+
+/* ARTIFACT INTERACTION */
+function openArtifact(file){
+    window.open(file, "_blank");
+}
+
+</script>
 
 </body>
 </html>
