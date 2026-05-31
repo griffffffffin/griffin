@@ -1,394 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>GRIFFIN | ARCHIVAL SYSTEM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRIFFIN // ARCHIVAL_INT_SYSTEM</title>
+    <style>
+        :root {
+            --accent: #00f0ff; /* Cyan Data Link */
+            --warning: #ff003c;
+            --bg: #0a0a0a;
+            --grid: rgba(255, 255, 255, 0.05);
+            --panel: rgba(15, 15, 15, 0.9);
+            --font: 'Courier New', Courier, monospace;
+        }
 
-<style>
-body {
-    margin: 0;
-    background: #000;
-    color: #eaeaea;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
-}
+        * { box-sizing: border-box; cursor: crosshair; }
 
-/* =========================
-   WORLD
-========================= */
-.world {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-}
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: #d1d1d1;
+            font-family: var(--font);
+            overflow: hidden;
+            letter-spacing: 1px;
+        }
 
-/* =========================
-   LOBBY
-========================= */
-.lobby {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    padding: 100px;
-    transition: opacity 0.5s ease;
-}
+        /* --- THE GRAIN & NOISE --- */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.07;
+            pointer-events: none;
+            z-index: 1000;
+        }
 
-.title {
-    font-size: 80px;
-    letter-spacing: 14px;
-}
+        /* --- SCANLINE EFFECT --- */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.1) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 999;
+            pointer-events: none;
+        }
 
-.subtitle {
-    color: #888;
-    max-width: 650px;
-}
+        /* --- THE HUD LAYOUT --- */
+        .hud-wrapper {
+            display: grid;
+            grid-template-columns: 350px 1fr 250px;
+            grid-template-rows: 80px 1fr 80px;
+            height: 100vh;
+            padding: 20px;
+            gap: 15px;
+        }
 
-/* LEFT ENTRY GRID */
-.nodes {
-    margin-top: 80px;
-    display: grid;
-    grid-template-columns: repeat(2, 240px);
-    gap: 20px;
-}
+        /* --- HEADER & STATUS --- */
+        header {
+            grid-column: 1 / 4;
+            border-bottom: 1px solid var(--grid);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
 
-.node {
-    border: 1px solid #222;
-    padding: 18px;
-    height: 120px;
-    cursor: pointer;
-    background: rgba(255,255,255,0.02);
-    transition: 0.3s;
-}
+        .sys-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 2px 0 var(--warning), -2px 0 var(--accent);
+        }
 
-.node:hover {
-    transform: scale(1.05);
-    border-color: #fff;
-}
+        /* --- SIDEBAR NAV --- */
+        .sidebar {
+            grid-row: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-right: 1px solid var(--grid);
+            padding-right: 20px;
+        }
 
-/* =========================
-   RIGHT SIDE PROGRAM TOWER
-========================= */
-.program {
-    position: absolute;
-    right: 60px;
-    top: 80px;
-    width: 280px;
-}
+        .nav-link {
+            padding: 15px;
+            border: 1px solid transparent;
+            position: relative;
+            transition: 0.3s;
+            overflow: hidden;
+        }
 
-.programTitle {
-    font-size: 12px;
-    letter-spacing: 6px;
-    color: #777;
-    margin-bottom: 20px;
-}
+        .nav-link:hover {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.05);
+            padding-left: 25px;
+        }
 
-/* EACH ENTRY */
-.unit {
-    margin-bottom: 18px;
-    cursor: pointer;
-}
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; width: 4px; height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: 0.3s;
+        }
 
-/* small label (studio / intern) */
-.unit .label {
-    font-size: 11px;
-    color: #666;
-    letter-spacing: 4px;
-}
+        .nav-link:hover::after { transform: scaleY(1); }
 
-/* BIG NUMBER */
-.unit .num {
-    font-size: 44px;
-    letter-spacing: 6px;
-    font-weight: bold;
-    transition: 0.3s;
-}
+        /* --- VIEWPORT (MAIN CONTENT) --- */
+        main {
+            grid-row: 2 / 3;
+            grid-column: 2 / 3;
+            position: relative;
+            background: var(--panel);
+            border: 1px solid var(--grid);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
 
-/* hover emphasis */
-.unit:hover .num {
-    transform: translateX(8px);
-    color: #fff;
-}
+        /* BRACKETS */
+        .bracket {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--accent);
+        }
+        .tl { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+        .tr { top: 20px; right: 20px; border-left: 0; border-bottom: 0; }
+        .bl { bottom: 20px; left: 20px; border-right: 0; border-top: 0; }
+        .br { bottom: 20px; right: 20px; border-left: 0; border-top: 0; }
 
-/* =========================
-   ROOM SYSTEM
-========================= */
-.room {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    display: none;
-    animation: roomIn 0.6s ease;
-}
+        /* --- CONTENT STATES --- */
+        .screen-content {
+            text-align: center;
+            max-width: 80%;
+            animation: flicker 0.15s infinite alternate;
+        }
 
-@keyframes roomIn {
-    from { opacity: 0; transform: scale(1.03); }
-    to { opacity: 1; transform: scale(1); }
-}
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            100% { opacity: 1; }
+        }
 
-/* FLOOR */
-.floor {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 45%;
-    background: radial-gradient(#111, #000);
-}
+        .big-id {
+            font-size: 10vw;
+            line-height: 1;
+            margin: 0;
+            font-weight: 900;
+            color: rgba(255,255,255,0.03);
+            position: absolute;
+            z-index: 0;
+        }
 
-/* CORE TABLE */
-.table {
-    position: absolute;
-    left: 50%;
-    top: 55%;
-    width: 280px;
-    height: 140px;
-    transform: translate(-50%, -50%);
-    background: #151515;
-    border: 1px solid #333;
-}
+        .project-details {
+            position: relative;
+            z-index: 1;
+        }
 
-/* ROOM TITLE */
-.roomTitle {
-    position: absolute;
-    top: 60px;
-    left: 80px;
-    font-size: 38px;
-    letter-spacing: 10px;
-}
+        /* --- RIGHT LOG --- */
+        .data-log {
+            grid-row: 2 / 3;
+            font-size: 0.6rem;
+            color: #555;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
 
-/* LABEL */
-.label {
-    position: absolute;
-    top: 120px;
-    left: 80px;
-    font-size: 11px;
-    color: #666;
-    letter-spacing: 4px;
-}
+        footer {
+            grid-column: 1 / 4;
+            border-top: 1px solid var(--grid);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #444;
+        }
 
-/* PANELS */
-.panel {
-    position: absolute;
-    width: 180px;
-    height: 240px;
-    border: 1px solid #333;
-    background: rgba(255,255,255,0.03);
-    cursor: pointer;
-    transition: 0.3s;
-}
+        .btn-close {
+            margin-top: 20px;
+            border: 1px solid #444;
+            padding: 10px 20px;
+            transition: 0.3s;
+        }
 
-.panel:hover {
-    transform: scale(1.05);
-    border-color: #fff;
-}
+        .btn-close:hover {
+            border-color: #fff;
+            color: #fff;
+        }
 
-.p1 { left: 10%; top: 25%; }
-.p2 { left: 75%; top: 25%; }
-.p3 { left: 10%; top: 65%; }
-.p4 { left: 75%; top: 65%; }
+        .hidden { display: none; }
 
-/* EXIT */
-.exit {
-    position: absolute;
-    bottom: 60px;
-    right: 70px;
-    padding: 12px 18px;
-    border: 1px solid #222;
-    letter-spacing: 6px;
-    cursor: pointer;
-}
-
-.exit:hover {
-    border-color: #fff;
-    transform: translateX(6px);
-}
-
-/* FADE */
-.fade {
-    opacity: 0;
-    pointer-events: none;
-}
-</style>
+    </style>
 </head>
-
 <body>
 
-<div class="world">
+<div class="scanlines"></div>
 
-    <!-- =========================
-         LOBBY
-    ========================== -->
-    <div class="lobby" id="lobby">
+<div class="hud-wrapper">
+    <header>
+        <div class="sys-title">GRIFFIN.SYS</div>
+        <div style="font-size: 0.7rem; text-align: right;">
+            DEPT: ARCHIVAL_INTERIORS<br>
+            SEC_LEVEL: 04_AUTHORIZED
+        </div>
+    </header>
 
-        <div class="title">GRIFFIN</div>
+    <nav class="sidebar">
+        <div class="nav-link" onclick="openArchive('101', 'FOUNDATION_ZERO', 'Structural base and geological integration studies.')">
+            [ 101 ] FOUNDATION
+        </div>
+        <div class="nav-link" onclick="openArchive('102', 'MONOLITH_FRAME', 'The skeleton of the archival system. High-density steel.')">
+            [ 102 ] STRUCTURE
+        </div>
+        <div class="nav-link" onclick="openArchive('201', 'CHROME_VOID', 'Negative space analysis within urban megastructures.')">
+            [ 201 ] VOID_FORM
+        </div>
+        <div class="nav-link" onclick="openArchive('X', 'CLASSIFIED_DATA', 'Access restricted to Lead Architect only.')">
+            [ XXX ] UNKNOWN_X
+        </div>
+    </nav>
 
-        <div class="subtitle">
-            URBAN BUILDER / ARCHIVAL INTERIOR SYSTEM<br>
-            STRUCTURE INDEX / PHYSICAL PROGRAM FIELD
+    <main id="main-viewport">
+        <div class="bracket tl"></div><div class="bracket tr"></div>
+        <div class="bracket bl"></div><div class="bracket br"></div>
+
+        <div id="lobby" class="screen-content">
+            <h2 style="letter-spacing: 15px; color: var(--accent);">IDLE_MODE</h2>
+            <p style="font-size: 0.8rem; opacity: 0.5;">WAITING FOR SECTOR COMMAND...</p>
         </div>
 
-        <!-- LEFT GRID -->
-        <div class="nodes">
-
-            <div class="node" onclick="enterRoom('101')">101<br>FOUNDATION CHAMBER</div>
-            <div class="node" onclick="enterRoom('102')">102<br>STRUCTURAL LAB</div>
-            <div class="node" onclick="enterRoom('201')">201<br>FORM WORKSHOP</div>
-            <div class="node" onclick="enterRoom('202')">202<br>VOID ROOM</div>
-
-            <div class="node" onclick="enterRoom('301')">301<br>URBAN FIELD</div>
-            <div class="node" onclick="enterRoom('302')">302<br>GRID EXPANSION</div>
-            <div class="node" onclick="enterRoom('401')">401<br>VERTICAL SYSTEM</div>
-            <div class="node" onclick="enterRoom('intern')">INTERN<br>FIELD OBSERVATION</div>
-
-            <div class="node" onclick="enterRoom('501')">501<br>MEGASTRUCTURE</div>
-            <div class="node" onclick="enterRoom('502')">502<br>FINAL ARCHIVE</div>
-            <div class="node" onclick="enterRoom('x')">X<br>UNKNOWN STATE</div>
-
-        </div>
-
-        <!-- RIGHT TOWER -->
-        <div class="program">
-            <div class="programTitle">UNDER CONSTRUCTION</div>
-
-            <div class="unit" onclick="enterRoom('101')">
-                <div class="label">STUDIO</div>
-                <div class="num">101</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('102')">
-                <div class="label">STUDIO</div>
-                <div class="num">102</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('201')">
-                <div class="label">STUDIO</div>
-                <div class="num">201</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('202')">
-                <div class="label">STUDIO</div>
-                <div class="num">202</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('301')">
-                <div class="label">STUDIO</div>
-                <div class="num">301</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('302')">
-                <div class="label">STUDIO</div>
-                <div class="num">302</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('401')">
-                <div class="label">STUDIO</div>
-                <div class="num">401</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('intern')">
-                <div class="label">STUDIO</div>
-                <div class="num">INTERN</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('501')">
-                <div class="label">STUDIO</div>
-                <div class="num">501</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('502')">
-                <div class="label">STUDIO</div>
-                <div class="num">502</div>
-            </div>
-
-            <div class="unit" onclick="enterRoom('x')">
-                <div class="label">STUDIO</div>
-                <div class="num">X</div>
+        <div id="archive-view" class="screen-content hidden">
+            <h1 class="big-id" id="bg-id">101</h1>
+            <div class="project-details">
+                <h2 id="proj-title" style="font-size: 2.5rem; margin: 0;">TITLE</h2>
+                <p id="proj-desc" style="max-width: 400px; margin: 20px auto; line-height: 1.6;"></p>
+                <div class="btn-close" onclick="resetView()">TERMINATE_SESSION</div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- =========================
-         TEMPLATE ROOM SYSTEM (REUSED)
-    ========================== -->
+    <aside class="data-log">
+        <div style="color: var(--warning);">>> SYSTEM_CHECK... OK</div>
+        <div>>> UPLOAD_SPEED: 45.2 MB/S</div>
+        <div>>> MEMORY_LOAD: 14%</div>
+        <div>>> LATENCY: 2ms</div>
+        <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 10px;">
+            STAGING_AREA_V.2.0<br>
+            BUILD_4492.01
+        </div>
+    </aside>
 
-    <div class="room" id="room101">
-        <div class="roomTitle">101 / FOUNDATION</div>
-        <div class="label">ARCHIVAL UNIT</div>
-        <div class="floor"></div><div class="table"></div>
-        <div class="panel p1"></div><div class="panel p2"></div>
-        <div class="panel p3"></div><div class="panel p4"></div>
-        <div class="exit" onclick="exitRoom()">EXIT</div>
-    </div>
-
-    <div class="room" id="room102">
-        <div class="roomTitle">102 / STRUCTURE</div>
-        <div class="label">ARCHIVAL UNIT</div>
-        <div class="floor"></div><div class="table"></div>
-        <div class="panel p1"></div><div class="panel p2"></div>
-        <div class="panel p3"></div><div class="panel p4"></div>
-        <div class="exit" onclick="exitRoom()">EXIT</div>
-    </div>
-
-    <div class="room" id="room201">
-        <div class="roomTitle">201 / FORM</div>
-        <div class="label">ARCHIVAL UNIT</div>
-        <div class="floor"></div><div class="table"></div>
-        <div class="panel p1"></div><div class="panel p2"></div>
-        <div class="panel p3"></div><div class="panel p4"></div>
-        <div class="exit" onclick="exitRoom()">EXIT</div>
-    </div>
-
-    <div class="room" id="room202">
-        <div class="roomTitle">202 / VOID</div>
-        <div class="label">ARCHIVAL UNIT</div>
-        <div class="floor"></div><div class="table"></div>
-        <div class="panel p1"></div><div class="panel p2"></div>
-        <div class="panel p3"></div><div class="panel p4"></div>
-        <div class="exit" onclick="exitRoom()">EXIT</div>
-    </div>
-
-    <div class="room" id="room301"><div class="roomTitle">301 / URBAN FIELD</div><div class="label"></div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
-    <div class="room" id="room302"><div class="roomTitle">302 / GRID EXPANSION</div><div class="label"></div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
-    <div class="room" id="room401"><div class="roomTitle">401 / VERTICAL SYSTEM</div><div class="label"></div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
-    <div class="room" id="roomintern"><div class="roomTitle">INTERN / FIELD</div><div class="label"></div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
-    <div class="room" id="room501"><div class="roomTitle">501 / MEGASTRUCTURE</div><div class="label"></div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
-    <div class="room" id="room502"><div class="roomTitle">502 / FINAL ARCHIVE</div><div class="label"></div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
-    <div class="room" id="roomx"><div class="roomTitle">X / UNKNOWN</div><div class="label"></div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
-
+    <footer>
+        <div>COORDINATES: 51.5074° N, 0.1278° W</div>
+        <div id="clock">00:00:00</div>
+        <div>USER_GRIFFIN_ARCHITECT</div>
+    </footer>
 </div>
 
 <script>
+    function openArchive(id, title, desc) {
+        document.getElementById('lobby').classList.add('hidden');
+        document.getElementById('archive-view').classList.remove('hidden');
+        
+        document.getElementById('bg-id').innerText = id;
+        document.getElementById('proj-title').innerText = title;
+        document.getElementById('proj-desc').innerText = desc;
 
-let currentRoom = null;
+        // Glitch effect on entry
+        const main = document.getElementById('main-viewport');
+        main.style.backgroundColor = "rgba(0, 240, 255, 0.1)";
+        setTimeout(() => main.style.backgroundColor = "var(--panel)", 100);
+    }
 
-/* ENTER */
-function enterRoom(id){
+    function resetView() {
+        document.getElementById('lobby').classList.remove('hidden');
+        document.getElementById('archive-view').classList.add('hidden');
+    }
 
-    document.getElementById("lobby").classList.add("fade");
-
-    setTimeout(() => {
-        document.getElementById("lobby").style.display = "none";
-        document.getElementById("room"+id).style.display = "block";
-        currentRoom = id;
-    }, 500);
-}
-
-/* EXIT */
-function exitRoom(){
-
-    if(!currentRoom) return;
-
-    document.getElementById("room"+currentRoom).style.display = "none";
-
-    let lobby = document.getElementById("lobby");
-    lobby.style.display = "block";
-
-    setTimeout(() => {
-        lobby.classList.remove("fade");
-    }, 50);
-
-    currentRoom = null;
-}
-
+    // Clock Function
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.getHours().toString().padStart(2, '0') + ":" + 
+                                                    now.getMinutes().toString().padStart(2, '0') + ":" + 
+                                                    now.getSeconds().toString().padStart(2, '0');
+    }, 1000);
 </script>
 
 </body>
