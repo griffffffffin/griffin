@@ -5,16 +5,21 @@
 <title>GRIFFIN | ARCHIVAL INTERIOR SYSTEM</title>
 
 <style>
+
+/* =========================
+   BASE SYSTEM
+========================= */
 body {
     margin: 0;
     background: #000;
     color: #eaeaea;
     font-family: Arial, sans-serif;
     overflow: hidden;
+    cursor: crosshair; /* AutoCAD pointer */
 }
 
 /* =========================
-   LOBBY
+   WORLD + GRID
 ========================= */
 .world {
     position: fixed;
@@ -22,25 +27,76 @@ body {
     height: 100%;
 }
 
-/* MAIN LOBBY */
-.lobby {
+/* AutoCAD GRID BACKGROUND */
+.world::before {
+    content: "";
+    position: fixed;
+    width: 200vw;
+    height: 200vh;
+    left: -50vw;
+    top: -50vh;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ensure UI above grid */
+.lobby, .room {
     position: absolute;
+    z-index: 2;
+}
+
+/* =========================
+   LOBBY
+========================= */
+.lobby {
     width: 100%;
     height: 100%;
     padding: 100px;
     transition: opacity 0.5s ease;
 }
 
-/* =========================
-   HEADER SYSTEM
-========================= */
+/* TITLE BLOCK */
 .title {
     font-size: 92px;
     letter-spacing: 14px;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 18px;
 }
 
-/* URBAN BUILDER */
+/* RED ACTIVE NODE (AutoCAD marker) */
+.node-dot{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid red;
+    position: relative;
+}
+
+.node-dot::after{
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: 22px;
+    height: 22px;
+    border: 1px dotted red;
+    border-radius: 50%;
+    animation: pulseRing 1.8s infinite linear;
+}
+
+@keyframes pulseRing {
+    0% { transform: scale(0.9); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.4; }
+    100% { transform: scale(0.9); opacity: 1; }
+}
+
+/* SUBTITLE */
 .subtitle {
     font-size: 14px;
     letter-spacing: 6px;
@@ -48,7 +104,7 @@ body {
     margin-top: 6px;
 }
 
-/* UNDERCONSTRUCTION (Flicker System) */
+/* UNDERCONSTRUCTION (Flicker warning) */
 .status {
     font-size: 12px;
     letter-spacing: 8px;
@@ -69,11 +125,11 @@ body {
     70%  { opacity: 0.9; }
     72%  { opacity: 0.2; }
     74%  { opacity: 1; }
-    100% { opacity: 1; text-shadow: 0 0 5px red; }
+    100% { opacity: 1; }
 }
 
 /* =========================
-   LEFT ENTRY GRID
+   LEFT GRID
 ========================= */
 .nodes {
     margin-top: 80px;
@@ -86,7 +142,7 @@ body {
     border: 1px solid #222;
     padding: 18px;
     height: 120px;
-    cursor: pointer;
+    cursor: crosshair;
     background: rgba(255,255,255,0.02);
     transition: 0.3s;
 }
@@ -115,7 +171,7 @@ body {
 
 .unit {
     margin-bottom: 14px;
-    cursor: pointer;
+    cursor: crosshair;
 }
 
 .unit .label {
@@ -197,7 +253,7 @@ body {
     height: 240px;
     border: 1px solid #333;
     background: rgba(255,255,255,0.03);
-    cursor: pointer;
+    cursor: crosshair;
     transition: 0.3s;
 }
 
@@ -219,7 +275,7 @@ body {
     padding: 12px 18px;
     border: 1px solid #222;
     letter-spacing: 6px;
-    cursor: pointer;
+    cursor: crosshair;
     transition: 0.3s;
 }
 
@@ -233,6 +289,7 @@ body {
     opacity: 0;
     pointer-events: none;
 }
+
 </style>
 </head>
 
@@ -245,7 +302,10 @@ body {
     ========================== -->
     <div class="lobby" id="lobby">
 
-        <div class="title">GRIFFIN</div>
+        <div class="title">
+            GRIFFIN
+            <span class="node-dot"></span>
+        </div>
 
         <div class="subtitle">URBAN BUILDER</div>
 
@@ -253,19 +313,19 @@ body {
 
         <div class="nodes">
 
-            <div class="node" onclick="enterRoom('101')">101<br>FOUNDATION</div>
-            <div class="node" onclick="enterRoom('102')">102<br>STRUCTURE</div>
-            <div class="node" onclick="enterRoom('201')">201<br>FORM</div>
-            <div class="node" onclick="enterRoom('202')">202<br>VOID</div>
+            <div class="node" onclick="enterRoom('101')">101 FOUNDATION</div>
+            <div class="node" onclick="enterRoom('102')">102 STRUCTURE</div>
+            <div class="node" onclick="enterRoom('201')">201 FORM</div>
+            <div class="node" onclick="enterRoom('202')">202 VOID</div>
 
-            <div class="node" onclick="enterRoom('301')">301<br>URBAN FIELD</div>
-            <div class="node" onclick="enterRoom('302')">302<br>GRID</div>
-            <div class="node" onclick="enterRoom('401')">401<br>VERTICAL</div>
-            <div class="node" onclick="enterRoom('intern')">INTERN<br>OBSERVATION</div>
+            <div class="node" onclick="enterRoom('301')">301 URBAN FIELD</div>
+            <div class="node" onclick="enterRoom('302')">302 GRID</div>
+            <div class="node" onclick="enterRoom('401')">401 VERTICAL</div>
+            <div class="node" onclick="enterRoom('intern')">INTERN</div>
 
-            <div class="node" onclick="enterRoom('501')">501<br>MEGA</div>
-            <div class="node" onclick="enterRoom('502')">502<br>ARCHIVE</div>
-            <div class="node" onclick="enterRoom('x')">X<br>UNKNOWN</div>
+            <div class="node" onclick="enterRoom('501')">501 MEGA</div>
+            <div class="node" onclick="enterRoom('502')">502 ARCHIVE</div>
+            <div class="node" onclick="enterRoom('x')">X UNKNOWN</div>
 
         </div>
 
@@ -304,29 +364,9 @@ body {
         <div class="exit" onclick="exitRoom()">EXIT</div>
     </div>
 
-    <div class="room" id="room-102">
-        <div class="roomTitle">102 / STRUCTURE</div>
-        <div class="label">ARCHIVAL UNIT</div>
-        <div class="floor"></div>
-        <div class="table"></div>
-        <div class="exit" onclick="exitRoom()">EXIT</div>
-    </div>
-
-    <div class="room" id="room-201">
-        <div class="roomTitle">201 / FORM</div>
-        <div class="label">ARCHIVAL UNIT</div>
-        <div class="floor"></div>
-        <div class="table"></div>
-        <div class="exit" onclick="exitRoom()">EXIT</div>
-    </div>
-
-    <div class="room" id="room-202">
-        <div class="roomTitle">202 / VOID</div>
-        <div class="label">ARCHIVAL UNIT</div>
-        <div class="floor"></div>
-        <div class="table"></div>
-        <div class="exit" onclick="exitRoom()">EXIT</div>
-    </div>
+    <div class="room" id="room-102"><div class="roomTitle">102</div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
+    <div class="room" id="room-201"><div class="roomTitle">201</div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
+    <div class="room" id="room-202"><div class="roomTitle">202</div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
 
     <div class="room" id="room-301"><div class="roomTitle">301</div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
     <div class="room" id="room-302"><div class="roomTitle">302</div><div class="floor"></div><div class="table"></div><div class="exit" onclick="exitRoom()">EXIT</div></div>
@@ -342,7 +382,7 @@ body {
 
 let currentRoom = null;
 
-/* ENTER SYSTEM */
+/* ENTER */
 function enterRoom(id){
     document.getElementById("lobby").classList.add("fade");
 
@@ -353,7 +393,7 @@ function enterRoom(id){
     }, 500);
 }
 
-/* EXIT SYSTEM */
+/* EXIT */
 function exitRoom(){
     if(!currentRoom) return;
 
